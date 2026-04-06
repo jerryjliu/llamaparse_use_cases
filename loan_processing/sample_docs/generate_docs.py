@@ -145,11 +145,8 @@ def generate_loan_application():
         "Position or Title": EMPLOYER["position"],
         "Start Date": EMPLOYER["start_date"],
         "How long in this line of work": "8",
-    })
-
-    # Page 1 — Section 1 continued: Income
-    writer.update_page_form_field_values(writer.pages[1], {
-        "Income": f"{MONTHLY_INCOME:,.2f}",
+        # Monthly income (Base) — field is unnamed in the PDF ("undefined")
+        "undefined": f"{MONTHLY_INCOME:,.2f}",
     })
 
     # Page 2 — Section 2: Assets (one checking account for context)
