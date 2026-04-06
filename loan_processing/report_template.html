@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Income Verification Report</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/fontsource/fonts/overused-grotesk@latest/latin.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF; --bg-alt: #F5F5F5; --surface: #FFFFFF;
+    --border: #E7E7E7; --text: #000000; --text-dim: #737373;
+    --purple: #3E18F9; --purple-light: #92AEFF;
+    --green: #27AE60; --yellow: #F39C12; --red: #E74C3C;
+    --gradient-brand: linear-gradient(148.35deg, #37d7fa -.08%, #4b72fe 39.93%, #ff8df2 67.94%, #ff8705 99.94%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Overused Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+
+  .hero {
+    text-align: center; padding: 2.5rem 2rem 2rem;
+    background: linear-gradient(180deg, rgba(62,24,249,0.04) 0%, transparent 70%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 { font-size: 2.2rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.4rem; }
+  .hero h1 .accent { color: var(--purple); }
+  .hero .subtitle { color: var(--text-dim); font-size: 1rem; max-width: 620px; margin: 0 auto; }
+
+  .decision {
+    max-width: 900px; margin: 1.5rem auto; padding: 1.2rem 2rem;
+    border-radius: 12px; display: flex; align-items: flex-start; gap: 1rem;
+    border: 2px solid $dec_color; background: $dec_bg;
+  }
+  .decision-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: $dec_color; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700; flex-shrink: 0;
+  }
+  .decision-text h2 { font-size: 1.2rem; font-weight: 600; color: $dec_color; }
+  .decision-text p { font-size: 0.88rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+
+  .section { margin-top: 2rem; }
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.8rem; padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Income summary card */
+  .income-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+  .income-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.2rem;
+  }
+  .income-card .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.3rem;
+  }
+  .income-card .value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.3rem; font-weight: 600; color: var(--text);
+  }
+  .income-card .detail {
+    font-size: 0.78rem; color: var(--text-dim); margin-top: 0.2rem;
+  }
+  .trend-up { color: var(--green); }
+  .trend-down { color: var(--red); }
+  .trend-stable { color: var(--text-dim); }
+
+  .doc-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; margin-bottom: 1.2rem; overflow: hidden;
+  }
+  .doc-card-header {
+    padding: 0.8rem 1.2rem;
+    background: var(--bg-alt); border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .doc-card-header h3 { font-size: 0.95rem; font-weight: 600; }
+  .doc-card-header .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; padding: 0.2rem 0.6rem;
+    border-radius: 20px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .doc-card-body { padding: 0; }
+
+  .tab-bar {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg-alt);
+  }
+  .tab-btn {
+    padding: 0.5rem 1.2rem; font-size: 0.78rem; font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace; cursor: pointer;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--text-dim); transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
+  .tab-panel { display: none; overflow-x: auto; }
+  .tab-panel.active { display: block; }
+  .pdf-embed { width: 100%; height: 500px; border: none; }
+
+  .fields-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  .fields-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 0.5rem 1rem; text-align: left;
+    background: var(--bg-alt); border-bottom: 1px solid var(--border);
+  }
+  .fields-table td {
+    padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; vertical-align: top;
+  }
+  .fields-table tr:last-child td { border-bottom: none; }
+  .field-name { font-weight: 500; white-space: nowrap; width: 180px; }
+  .field-value { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; }
+  .field-citation {
+    font-size: 0.72rem; color: var(--text-dim); font-style: italic;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .conf-pill {
+    display: inline-block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem;
+    border-radius: 10px; white-space: nowrap;
+  }
+  .conf-high { background: #EAFAF1; color: #1E8449; }
+  .conf-med { background: #FEF9E7; color: #B7950B; }
+  .conf-low { background: #FDEDEC; color: #CB4335; }
+  .conf-na { background: var(--bg-alt); color: var(--text-dim); }
+
+  .val-table { width: 100%; border-collapse: collapse; }
+  .val-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 0.6rem 1rem; text-align: left;
+    background: var(--bg-alt); border-bottom: 1px solid var(--border);
+  }
+  .val-table td {
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .val-table tr:last-child td { border-bottom: none; }
+  .val-pass { color: var(--green); font-weight: 600; }
+  .val-fail { color: var(--red); font-weight: 600; }
+  .val-values { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
+  .val-reasoning { font-size: 0.8rem; color: var(--text-dim); font-style: italic; max-width: 280px; }
+
+  .footer {
+    text-align: center; padding: 2rem;
+    color: var(--text-dim); font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+    max-width: 900px; margin: 0 auto;
+  }
+  .footer a { color: var(--purple); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Loan Income <span class="accent">Verification</span> Report</h1>
+  <p class="subtitle">Automated income extraction and cross-document validation powered by LlamaParse and Claude.</p>
+</div>
+
+<div class="decision">
+  <div class="decision-icon">$decision_icon</div>
+  <div class="decision-text">
+    <h2>$decision &mdash; $dec_label</h2>
+    <p>$safe_reasoning</p>
+  </div>
+</div>
+
+<div class="content">
+  <div class="section">
+    <div class="section-title">Income Summary</div>
+    <div class="income-grid" id="income-grid"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Document Extraction Results</div>
+    <div id="doc-cards"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Cross-Document Validation</div>
+    <div class="doc-card">
+      <div class="doc-card-body">
+        <table class="val-table" id="val-table">
+          <thead><tr><th>Check</th><th>Document A</th><th>Document B</th><th>Result</th><th>Reasoning</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Built with <a href="https://cloud.llamaindex.ai">LlamaParse</a> and <a href="https://www.anthropic.com">Claude</a> by <a href="https://www.llamaindex.ai">LlamaIndex</a>
+</div>
+
+<script>
+var DOCS = $docs_json;
+var CHECKS = $checks_json;
+var METRICS = $metrics_json;
+
+function confClass(s) {
+  if (s === null || s === undefined) return 'conf-na';
+  return s >= 0.8 ? 'conf-high' : s >= 0.5 ? 'conf-med' : 'conf-low';
+}
+function confLabel(s) {
+  return (s === null || s === undefined) ? 'N/A' : (s * 100).toFixed(0) + '%';
+}
+function esc(s) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(s || ''));
+  return d.innerHTML;
+}
+function fmt(n) {
+  return '$$' + Number(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+/* Income summary cards */
+var incomeGrid = document.getElementById('income-grid');
+var trendClass = METRICS.income_trend === 'increasing' ? 'trend-up' : METRICS.income_trend === 'decreasing' ? 'trend-down' : 'trend-stable';
+var trendIcon = METRICS.income_trend === 'increasing' ? '&#9650;' : METRICS.income_trend === 'decreasing' ? '&#9660;' : '&#8212;';
+
+var cards = [
+  {label: 'Stated Annual Income', value: fmt(METRICS.stated_annual_income), detail: 'From loan application (monthly &times; 12)'},
+  {label: 'W-2 Annual Wages', value: fmt(METRICS.w2_annual_income), detail: 'Prior year Box 1 wages'},
+  {label: 'Pay Stub Annualized', value: fmt(METRICS.annualized_pay_stub), detail: '<span class="' + trendClass + '">' + trendIcon + ' ' + esc(METRICS.income_trend) + '</span> vs prior year'},
+  {label: 'Monthly Income', value: fmt(METRICS.monthly_income), detail: 'For DTI calculation'},
+  {label: 'Unexplained Deposits', value: fmt(METRICS.unexplained_deposits), detail: 'Non-payroll deposits in bank statement'},
+  {label: 'Income Trend', value: '<span class="' + trendClass + '">' + esc(METRICS.income_trend) + '</span>', detail: 'W-2 vs current pay stub'}
+];
+cards.forEach(function(card) {
+  var el = document.createElement('div');
+  el.className = 'income-card';
+  el.innerHTML = '<div class="label">' + card.label + '</div><div class="value">' + card.value + '</div><div class="detail">' + card.detail + '</div>';
+  incomeGrid.appendChild(el);
+});
+
+/* Document extraction cards */
+var badgeStyles = {
+  'Loan Application': 'background:#EBF5FB;color:#1B4F72',
+  'W-2': 'background:#FEF9E7;color:#7D6608',
+  'Pay Stub': 'background:#F4ECF7;color:#6C3483',
+  'Bank Statement': 'background:#EAFAF1;color:#1E8449'
+};
+var cardsEl = document.getElementById('doc-cards');
+DOCS.forEach(function(doc, di) {
+  var card = document.createElement('div');
+  card.className = 'doc-card';
+  var bs = badgeStyles[doc.doc_type] || 'background:#F5F5F5;color:#333';
+  var rows = '';
+  doc.fields.forEach(function(f) {
+    var cc = confClass(f.confidence);
+    var cit = f.citation ? '<span class="field-citation" title="' + esc(f.citation) + '">"' + esc(f.citation) + '"</span>' : '';
+    rows += '<tr><td class="field-name">' + esc(f.label) + '</td><td class="field-value">' + esc(String(f.value)) + '</td><td>' + cit + '</td><td><span class="conf-pill ' + cc + '">' + confLabel(f.confidence) + '</span></td></tr>';
+  });
+  var pdfSrc = doc.pdf_base64 ? 'data:application/pdf;base64,' + doc.pdf_base64 : '';
+  card.innerHTML =
+    '<div class="doc-card-header"><h3>' + esc(doc.doc_type) + '</h3><span class="badge" style="' + bs + '">' + esc(doc.source_file) + '</span></div>' +
+    '<div class="tab-bar"><button class="tab-btn active" data-tab="ext-' + di + '">Extracted Data</button><button class="tab-btn" data-tab="src-' + di + '">Source Document</button></div>' +
+    '<div class="doc-card-body">' +
+      '<div class="tab-panel active" id="ext-' + di + '"><table class="fields-table"><thead><tr><th>Field</th><th>Extracted Value</th><th>Citation</th><th>Confidence</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="tab-panel" id="src-' + di + '">' + (pdfSrc ? '<embed class="pdf-embed" src="' + pdfSrc + '" type="application/pdf" />' : '<p style="padding:2rem;color:var(--text-dim);text-align:center">PDF not embedded.</p>') + '</div>' +
+    '</div>';
+  cardsEl.appendChild(card);
+});
+
+/* Tab switching */
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  var card = btn.closest('.doc-card');
+  card.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  card.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.tab).classList.add('active');
+});
+
+/* Validation table */
+var valBody = document.querySelector('#val-table tbody');
+CHECKS.forEach(function(ch) {
+  var tr = document.createElement('tr');
+  var icon = ch.passed ? '<span class="val-pass">&#10003; PASS</span>' : '<span class="val-fail">&#9888; FLAG</span>';
+  tr.innerHTML = '<td style="font-weight:500">' + esc(ch.check_name) + '</td><td><span class="val-values">' + esc(ch.doc_a_value) + '</span></td><td><span class="val-values">' + esc(ch.doc_b_value) + '</span></td><td>' + icon + '</td><td><span class="val-reasoning">' + esc(ch.reasoning) + '</span></td>';
+  valBody.appendChild(tr);
+});
+</script>
+</body>
+</html>
