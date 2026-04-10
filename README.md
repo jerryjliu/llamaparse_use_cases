@@ -10,6 +10,7 @@ Each use case includes sample documents, a runnable pipeline script, and an inte
 |----------|----------|---------------|
 | [**KYC Document Verification**](kyc/) | Fintech | Extract identity fields from IDs, utility bills, and bank statements with [LlamaExtract](https://developers.llamaindex.ai/python/cloud/llamaextract/getting_started/), then cross-validate across documents using Claude |
 | [**Loan Income Verification**](loan_processing/) | Fintech | Extract income data from loan applications, W-2s, pay stubs, and bank statements, then cross-validate income consistency using Claude |
+| [**Auto Claims Verification**](insurance_claims/) | Insurance | Extract claim data from ACORD forms, policy declarations, accident reports, and repair estimates, then verify coverage using Claude |
 
 ## Getting Started
 

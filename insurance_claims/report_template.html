@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Claims Coverage Verification Report</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/fontsource/fonts/overused-grotesk@latest/latin.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF; --bg-alt: #F5F5F5; --surface: #FFFFFF;
+    --border: #E7E7E7; --text: #000000; --text-dim: #737373;
+    --purple: #3E18F9; --purple-light: #92AEFF;
+    --green: #27AE60; --yellow: #F39C12; --red: #E74C3C;
+    --gradient-brand: linear-gradient(148.35deg, #37d7fa -.08%, #4b72fe 39.93%, #ff8df2 67.94%, #ff8705 99.94%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Overused Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+
+  .hero {
+    text-align: center; padding: 2.5rem 2rem 2rem;
+    background: linear-gradient(180deg, rgba(62,24,249,0.04) 0%, transparent 70%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 { font-size: 2.2rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.4rem; }
+  .hero h1 .accent { color: var(--purple); }
+  .hero .subtitle { color: var(--text-dim); font-size: 1rem; max-width: 620px; margin: 0 auto; }
+
+  .decision {
+    max-width: 900px; margin: 1.5rem auto; padding: 1.2rem 2rem;
+    border-radius: 12px; display: flex; align-items: flex-start; gap: 1rem;
+    border: 2px solid $dec_color; background: $dec_bg;
+  }
+  .decision-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: $dec_color; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700; flex-shrink: 0;
+  }
+  .decision-text h2 { font-size: 1.2rem; font-weight: 600; color: $dec_color; }
+  .decision-text p { font-size: 0.88rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+
+  .section { margin-top: 2rem; }
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.8rem; padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Coverage assessment card */
+  .assess-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+  .assess-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.2rem;
+  }
+  .assess-card .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.3rem;
+  }
+  .assess-card .value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.3rem; font-weight: 600; color: var(--text);
+  }
+  .assess-card .detail {
+    font-size: 0.78rem; color: var(--text-dim); margin-top: 0.2rem;
+  }
+  .assess-yes { color: var(--green); }
+  .assess-no { color: var(--red); }
+
+  .doc-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; margin-bottom: 1.2rem; overflow: hidden;
+  }
+  .doc-card-header {
+    padding: 0.8rem 1.2rem;
+    background: var(--bg-alt); border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .doc-card-header h3 { font-size: 0.95rem; font-weight: 600; }
+  .doc-card-header .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; padding: 0.2rem 0.6rem;
+    border-radius: 20px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .doc-card-body { padding: 0; }
+
+  .tab-bar {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg-alt);
+  }
+  .tab-btn {
+    padding: 0.5rem 1.2rem; font-size: 0.78rem; font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace; cursor: pointer;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--text-dim); transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
+  .tab-panel { display: none; overflow-x: auto; }
+  .tab-panel.active { display: block; }
+  .pdf-embed { width: 100%; height: 500px; border: none; }
+
+  .fields-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  .fields-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 0.5rem 1rem; text-align: left;
+    background: var(--bg-alt); border-bottom: 1px solid var(--border);
+  }
+  .fields-table td {
+    padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; vertical-align: top;
+  }
+  .fields-table tr:last-child td { border-bottom: none; }
+  .field-name { font-weight: 500; white-space: nowrap; width: 180px; }
+  .field-value { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; }
+  .field-citation {
+    font-size: 0.72rem; color: var(--text-dim); font-style: italic;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .conf-pill {
+    display: inline-block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem;
+    border-radius: 10px; white-space: nowrap;
+  }
+  .conf-high { background: #EAFAF1; color: #1E8449; }
+  .conf-med { background: #FEF9E7; color: #B7950B; }
+  .conf-low { background: #FDEDEC; color: #CB4335; }
+  .conf-na { background: var(--bg-alt); color: var(--text-dim); }
+
+  .val-table { width: 100%; border-collapse: collapse; }
+  .val-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; color: var(--text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 0.6rem 1rem; text-align: left;
+    background: var(--bg-alt); border-bottom: 1px solid var(--border);
+  }
+  .val-table td {
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .val-table tr:last-child td { border-bottom: none; }
+  .val-pass { color: var(--green); font-weight: 600; }
+  .val-fail { color: var(--red); font-weight: 600; }
+  .val-values { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
+  .val-reasoning { font-size: 0.8rem; color: var(--text-dim); font-style: italic; max-width: 280px; }
+
+  .footer {
+    text-align: center; padding: 2rem;
+    color: var(--text-dim); font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+    max-width: 900px; margin: 0 auto;
+  }
+  .footer a { color: var(--purple); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Auto Claims <span class="accent">Coverage Verification</span> Report</h1>
+  <p class="subtitle">Automated document extraction and cross-document coverage verification powered by LlamaParse and Claude.</p>
+</div>
+
+<div class="decision">
+  <div class="decision-icon">$decision_icon</div>
+  <div class="decision-text">
+    <h2>$decision &mdash; $dec_label</h2>
+    <p>$safe_reasoning</p>
+  </div>
+</div>
+
+<div class="content">
+  <div class="section">
+    <div class="section-title">Coverage Assessment</div>
+    <div class="assess-grid" id="assess-grid"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Document Extraction Results</div>
+    <div id="doc-cards"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Cross-Document Verification</div>
+    <div class="doc-card">
+      <div class="doc-card-body">
+        <table class="val-table" id="val-table">
+          <thead><tr><th>Check</th><th>Document A</th><th>Document B</th><th>Result</th><th>Reasoning</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Built with <a href="https://cloud.llamaindex.ai">LlamaParse</a> and <a href="https://www.anthropic.com">Claude</a> by <a href="https://www.llamaindex.ai">LlamaIndex</a>
+</div>
+
+<script>
+var DOCS = $docs_json;
+var CHECKS = $checks_json;
+var ASSESSMENT = $assessment_json;
+
+function confClass(s) {
+  if (s === null || s === undefined) return 'conf-na';
+  return s >= 0.8 ? 'conf-high' : s >= 0.5 ? 'conf-med' : 'conf-low';
+}
+function confLabel(s) {
+  return (s === null || s === undefined) ? 'N/A' : (s * 100).toFixed(0) + '%';
+}
+function esc(s) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(s || ''));
+  return d.innerHTML;
+}
+function fmt(n) {
+  return '$$' + Number(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+/* Coverage assessment cards */
+var assessGrid = document.getElementById('assess-grid');
+var limitsClass = ASSESSMENT.within_policy_limits ? 'assess-yes' : 'assess-no';
+var limitsLabel = ASSESSMENT.within_policy_limits ? 'Yes' : 'No';
+
+var assessCards = [
+  {label: 'Repair Estimate Total', value: fmt(ASSESSMENT.repair_total), detail: 'Body shop estimate'},
+  {label: 'Deductible', value: fmt(ASSESSMENT.deductible), detail: 'Collision deductible from policy'},
+  {label: 'Net Payable', value: fmt(ASSESSMENT.net_payable), detail: 'Estimate minus deductible'},
+  {label: 'Coverage Type', value: esc(ASSESSMENT.coverage_type), detail: 'Applicable coverage'},
+  {label: 'Within Policy Limits', value: '<span class="' + limitsClass + '">' + limitsLabel + '</span>', detail: 'Repair total vs coverage limit'},
+];
+assessCards.forEach(function(card) {
+  var el = document.createElement('div');
+  el.className = 'assess-card';
+  el.innerHTML = '<div class="label">' + card.label + '</div><div class="value">' + card.value + '</div><div class="detail">' + card.detail + '</div>';
+  assessGrid.appendChild(el);
+});
+
+/* Document extraction cards */
+var badgeStyles = {
+  'ACORD 2 Loss Notice': 'background:#EBF5FB;color:#1B4F72',
+  'Policy Declarations': 'background:#FEF9E7;color:#7D6608',
+  'Accident Report': 'background:#F4ECF7;color:#6C3483',
+  'Repair Estimate': 'background:#EAFAF1;color:#1E8449'
+};
+var cardsEl = document.getElementById('doc-cards');
+DOCS.forEach(function(doc, di) {
+  var card = document.createElement('div');
+  card.className = 'doc-card';
+  var bs = badgeStyles[doc.doc_type] || 'background:#F5F5F5;color:#333';
+  var rows = '';
+  doc.fields.forEach(function(f) {
+    var cc = confClass(f.confidence);
+    var cit = f.citation ? '<span class="field-citation" title="' + esc(f.citation) + '">"' + esc(f.citation) + '"</span>' : '';
+    rows += '<tr><td class="field-name">' + esc(f.label) + '</td><td class="field-value">' + esc(String(f.value)) + '</td><td>' + cit + '</td><td><span class="conf-pill ' + cc + '">' + confLabel(f.confidence) + '</span></td></tr>';
+  });
+  var pdfSrc = doc.pdf_base64 ? 'data:application/pdf;base64,' + doc.pdf_base64 : '';
+  card.innerHTML =
+    '<div class="doc-card-header"><h3>' + esc(doc.doc_type) + '</h3><span class="badge" style="' + bs + '">' + esc(doc.source_file) + '</span></div>' +
+    '<div class="tab-bar"><button class="tab-btn active" data-tab="ext-' + di + '">Extracted Data</button><button class="tab-btn" data-tab="src-' + di + '">Source Document</button></div>' +
+    '<div class="doc-card-body">' +
+      '<div class="tab-panel active" id="ext-' + di + '"><table class="fields-table"><thead><tr><th>Field</th><th>Extracted Value</th><th>Citation</th><th>Confidence</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="tab-panel" id="src-' + di + '">' + (pdfSrc ? '<embed class="pdf-embed" src="' + pdfSrc + '" type="application/pdf" />' : '<p style="padding:2rem;color:var(--text-dim);text-align:center">PDF not embedded.</p>') + '</div>' +
+    '</div>';
+  cardsEl.appendChild(card);
+});
+
+/* Tab switching */
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  var card = btn.closest('.doc-card');
+  card.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  card.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.tab).classList.add('active');
+});
+
+/* Validation table */
+var valBody = document.querySelector('#val-table tbody');
+CHECKS.forEach(function(ch) {
+  var tr = document.createElement('tr');
+  var icon = ch.passed ? '<span class="val-pass">&#10003; PASS</span>' : '<span class="val-fail">&#9888; FLAG</span>';
+  tr.innerHTML = '<td style="font-weight:500">' + esc(ch.check_name) + '</td><td><span class="val-values">' + esc(ch.doc_a_value) + '</span></td><td><span class="val-values">' + esc(ch.doc_b_value) + '</span></td><td>' + icon + '</td><td><span class="val-reasoning">' + esc(ch.reasoning) + '</span></td>';
+  valBody.appendChild(tr);
+});
+</script>
+</body>
+</html>
